@@ -328,7 +328,9 @@ function sendToGoogleSheet(expense) {
 }
 
 // 경비 삭제 함수
-function deleteExpense(id) {
+function deleteExpense(btn) {
+    const id = btn.getAttribute('data-id');
+    
     if (confirm('이 항목을 삭제하시겠습니까?')) {
         const deletedExpense = expenses.find(e => e.id === id);
         
@@ -421,8 +423,8 @@ function updateExpenseTable() {
                 <td>฿ ${expense.baht.toLocaleString()}</td>
                 <td>₩ ${expense.won.toLocaleString()}</td>
                 <td>${expense.person}</td>
-                <td><button onclick="editExpense('${expense.id}')" class="edit-btn">수정</button></td>
-                <td><button onclick="deleteExpense('${expense.id}')" class="delete-btn">삭제</button></td>
+                <td><button data-id="${expense.id}" onclick="editExpense(this)" class="edit-btn">수정</button></td>
+                <td><button data-id="${expense.id}" onclick="deleteExpense(this)" class="delete-btn">삭제</button></td>
             `;
             if (editingId === expense.id) {
                 row.style.backgroundColor = '#fff3cd';
@@ -572,7 +574,8 @@ function refreshExchangeRate() {
 }
 
 // 수정 모드 시작
-function editExpense(id) {
+function editExpense(btn) {
+    const id = btn.getAttribute('data-id');
     const expense = expenses.find(e => e.id === id);
     if (!expense) return;
 

@@ -119,14 +119,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // 현재까지 남은 일수 계산
     calculateDaysUntilTrip();
     
-    // 저장된 경비 로드
-    loadExpenses();
+    // 🔄 Google Sheets 우선 동기화 (인터넷 있으면 최신 데이터, 없으면 로컬데이터)
+    syncFromGoogleSheet();
     
-    // 🔄 구글시트와 동기화 시도 (다른 기기의 데이터 받기)
-    // ⏱️ 4초 대기: Google Apps Script 서버의 DELETE 처리 완료 대기
-    setTimeout(() => {
-        syncFromGoogleSheet();
-    }, 4000);
+    // 로컬 데이터도 빠르게 로드 (백업용, 인터넷 느릴 때 대비)
+    loadExpenses();
     
     // 실시간 환율 가져오기
     fetchExchangeRate();

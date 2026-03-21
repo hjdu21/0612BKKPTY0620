@@ -38,6 +38,60 @@ function syncFromGoogleSheet() {
         });
 }
 
+// ════════════════════════════════════
+// 🔄 구글시트에서 데이터 완전 새로고침 (버튼 클릭)
+// ════════════════════════════════════
+function loadDataFromGoogleSheet() {
+    console.log('🔄 구글시트 데이터 완전 새로고침 시작...');
+    
+    // 버튼 비활성화
+    const btn = event?.target;
+    if (btn) {
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+        btn.textContent = '⏳ 로딩중...';
+    }
+    
+    fetch(GOOGLE_SHEETS_URL + '?action=getAll')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('구글시트 조회 실패');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && Array.isArray(data)) {
+                // ✅ localStorage 완전 초기화
+                expenses = data;
+                saveExpenses(); // 새로운 데이터로 저장
+                
+                console.log(`✅ 구글시트에서 ${data.length}개 데이터 로드됨`);
+                console.log('📊 새로운 데이터:', expenses);
+                
+                // UI 업데이트
+                updateExpenseTable();
+                updateSummary();
+                
+                // 성공 알림
+                alert(`✅ 성공! ${data.length}개 항목이 동기화되었습니다.`);
+            } else {
+                alert('⚠️ 구글시트에 데이터가 없습니다.');
+            }
+        })
+        .catch(error => {
+            console.error('❌ 동기화 오류:', error);
+            alert('❌ 동기화 실패: ' + error.message);
+        })
+        .finally(() => {
+            // 버튼 원래대로
+            if (btn) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.textContent = '🔄 데이터 동기화';
+            }
+        });
+}
+
 // 페이지 로드 완료 후 실행
 document.addEventListener('DOMContentLoaded', function() {
     console.log('여행 계획 페이지 로드됨!');

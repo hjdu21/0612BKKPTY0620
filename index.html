@@ -10,7 +10,7 @@
     <div class="container">
         <!-- 헤더 -->
         <header class="header">
-            <h1>🌴 2026 방콕 & 파타야 여행 계획</h1>
+            <h1>🌴 상우 & 현지의 2026 방콕 & 파타야 여행</h1>
             <p class="subtitle">2026년 6월 12일 ~ 6월 20일</p>
         </header>
 
@@ -239,6 +239,57 @@
         <section class="budget">
             <h2>💰 경비 / 비용</h2>
             <p class="budget-note">💡 환율: 1 바트 ≈ 46원</p>
+            
+            <!-- 경비 기록 입력 -->
+            <div class="expense-tracker">
+                <h3>💸 경비 기록 추가</h3>
+                <div class="expense-input-form">
+                    <div class="input-group">
+                        <label for="expenseName">항목명:</label>
+                        <input type="text" id="expenseName" placeholder="예: 숙박, 식사, 액티비티" />
+                    </div>
+                    <div class="input-group">
+                        <label for="expenseAmount">금액 (바트):</label>
+                        <input type="number" id="expenseAmount" placeholder="예: 1000" />
+                    </div>
+                    <div class="input-group">
+                        <label for="expensePerson">담당자:</label>
+                        <select id="expensePerson">
+                            <option value="상우">상우</option>
+                            <option value="현지">현지</option>
+                            <option value="공동">공동</option>
+                        </select>
+                    </div>
+                    <button onclick="addExpense()">추가하기</button>
+                </div>
+            </div>
+
+            <!-- 경비 목록 -->
+            <div class="expense-list">
+                <h3>📋 경비 목록</h3>
+                <table class="expense-table">
+                    <thead>
+                        <tr>
+                            <th>항목</th>
+                            <th>바트 (฿)</th>
+                            <th>한국원 (₩)</th>
+                            <th>담당자</th>
+                            <th>삭제</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expenseTableBody">
+                        <!-- 동적으로 추가됨 -->
+                    </tbody>
+                </table>
+                <div class="expense-summary">
+                    <p><strong>총 지출 (바트):</strong> <span id="totalBaht">0</span> ฿</p>
+                    <p><strong>총 지출 (원):</strong> <span id="totalKRW">0</span> ₩</p>
+                    <p class="per-person">
+                        <strong>1인당 (원):</strong> <span id="perPerson">0</span> ₩
+                    </p>
+                </div>
+            </div>
+
             <div class="budget-grid">
                 <div class="budget-card">
                     <h3>항공권</h3>

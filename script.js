@@ -133,14 +133,17 @@ function addExpense() {
 
     // 통화에 따라 바트와 원화 계산
     let baht, won;
+    console.log(`DEBUG: currencyType=${currencyType}, amount=${amount}, EXCHANGE_RATE=${EXCHANGE_RATE}`);
     if (currencyType === 'baht') {
         // 바트 입력
         baht = amount;
         won = Math.round(amount * EXCHANGE_RATE);
+        console.log(`DEBUG: 바트 입력 → baht=${baht}, won=${won}`);
     } else {
         // 원화 입력
         won = amount;
         baht = Math.round(amount / EXCHANGE_RATE);
+        console.log(`DEBUG: 원화 입력 → baht=${baht}, won=${won}`);
     }
 
     if (editingId !== null) {

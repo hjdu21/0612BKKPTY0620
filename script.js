@@ -19,6 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // 저장된 경비 로드
     loadExpenses();
     
+    // 날짜 입력란 기본값을 오늘로 설정
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('expenseDate').value = today;
+    
     // 엔터키로 경비 추가
     document.getElementById('expenseAmount')?.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') addExpense();
@@ -112,12 +116,13 @@ console.log('🎉 즐거운 여행 되세요!');
 
 // 경비 추가 또는 수정 함수 (Google Sheet + 로컬 저장)
 function addExpense() {
+    const date = document.getElementById('expenseDate').value;
     const name = document.getElementById('expenseName').value.trim();
     const amount = parseFloat(document.getElementById('expenseAmount').value);
     const person = document.getElementById('expensePerson').value;
 
-    if (!name || !amount || amount <= 0) {
-        alert('항목명과 금액을 올바르게 입력해주세요.');
+    if (!date || !name || !amount || amount <= 0) {
+        alert('날짜, 항목명, 금액을 모두 입력해주세요.');
         return;
     }
 
@@ -125,6 +130,7 @@ function addExpense() {
         // 수정 모드: 기존 항목 업데이트
         const index = expenses.findIndex(e => e.id === editingId);
         if (index !== -1) {
+            expenses[index].date = date;
             expenses[index].description = name;
             expenses[index].baht = amount;
             expenses[index].won = Math.round(amount * EXCHANGE_RATE);
@@ -136,11 +142,12 @@ function addExpense() {
         // 추가 모드: 새 항목 생성
         const expense = {
             id: Date.now(),
+            date: date,
             description: name,
             baht: amount,
             won: Math.round(amount * EXCHANGE_RATE),
             person: person,
-            date: new Date().toLocaleString('ko-KR')
+            timestamp: new Date().toLocaleString('ko-KR')
         };
         expenses.push(expense);
         console.log('✅ 경비 추가됨:', expense);
@@ -196,26 +203,79 @@ function deleteExpense(id) {
     }
 }
 
-// 경비 테이블 업데이트
+// 경비 테이블 업데이트 (일별 그룹화)
 function updateExpenseTable() {
     const tbody = document.getElementById('expenseTableBody');
     tbody.innerHTML = '';
 
+    // 날짜별로 그룹화
+    const grouped = {};
     expenses.forEach(expense => {
-        const row = tbody.insertRow();
-        row.innerHTML = `
-            <td>${expense.description}</td>
-            <td>฿ ${expense.baht.toLocaleString()}</td>
-            <td>₩ ${expense.won.toLocaleString()}</td>
-            <td>${expense.person}</td>
-            <td><button onclick="editExpense(${expense.id})" class="edit-btn">수정</button></td>
-            <td><button onclick="deleteExpense(${expense.id})" class="delete-btn">삭제</button></td>
-        `;
-        // 수정 중인 항목 하이라이트
-        if (editingId === expense.id) {
-            row.style.backgroundColor = '#fff3cd';
+        if (!grouped[expense.date]) {
+            grouped[expense.date] = [];
         }
+        grouped[expense.date].push(expense);
     });
+
+    // 날짜 순으로 정렬
+    const sortedDates = Object.keys(grouped).sort();
+
+    // 각 날짜별로 행 생성
+    sortedDates.forEach(date => {
+        const items = grouped[date];
+        let dailyBaht = 0;
+        let dailyKRW = 0;
+
+        // 날짜 헤더 행
+        const dateRow = tbody.insertRow();
+        dateRow.style.backgroundColor = '#f3f4f6';
+        dateRow.style.fontWeight = 'bold';
+        const dateCell = dateRow.insertCell(0);
+        dateCell.colSpan = 6;
+        
+        // 날짜를 읽기 좋게 포맷
+        const dateObj = new Date(date + 'T00:00:00');
+        const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+        const dayName = dayNames[dateObj.getDay()];
+        dateCell.textContent = `📅 ${date} (${dayName})`;
+
+        // 해당 날짜의 항목들
+        items.forEach(expense => {
+            dailyBaht += expense.baht;
+            dailyKRW += expense.won;
+            
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td>${expense.description}</td>
+                <td>฿ ${expense.baht.toLocaleString()}</td>
+                <td>₩ ${expense.won.toLocaleString()}</td>
+                <td>${expense.person}</td>
+                <td><button onclick="editExpense(${expense.id})" class="edit-btn">수정</button></td>
+                <td><button onclick="deleteExpense(${expense.id})" class="delete-btn">삭제</button></td>
+            `;
+            if (editingId === expense.id) {
+                row.style.backgroundColor = '#fff3cd';
+            }
+        });
+
+        // 일계 행
+        const subtotalRow = tbody.insertRow();
+        subtotalRow.style.backgroundColor = '#e0e7ff';
+        subtotalRow.style.fontWeight = 'bold';
+        const subtotalCell = subtotalRow.insertCell(0);
+        subtotalCell.colSpan = 6;
+        subtotalCell.textContent = `▶ 일계: ฿ ${dailyBaht.toLocaleString()} (₩ ${dailyKRW.toLocaleString()})`;
+    });
+
+    // 데이터가 없을 경우
+    if (sortedDates.length === 0) {
+        const row = tbody.insertRow();
+        const cell = row.insertCell(0);
+        cell.colSpan = 6;
+        cell.textContent = '등록된 경비가 없습니다.';
+        cell.style.textAlign = 'center';
+        cell.style.color = '#999';
+    }
 }
 
 // 경비 요약 업데이트
@@ -253,6 +313,7 @@ function editExpense(id) {
     if (!expense) return;
 
     // 폼에 데이터 채우기
+    document.getElementById('expenseDate').value = expense.date;
     document.getElementById('expenseName').value = expense.description;
     document.getElementById('expenseAmount').value = expense.baht;
     document.getElementById('expensePerson').value = expense.person;
@@ -267,7 +328,7 @@ function editExpense(id) {
     updateExpenseTable();
 
     // 폼 위치로 스크롤
-    document.getElementById('expenseName').focus();
+    document.getElementById('expenseDate').focus();
 
     console.log('✏️ 수정 모드:', expense);
 }
@@ -280,6 +341,8 @@ function cancelEdit() {
 
 // 폼 초기화 및 버튼 복원
 function resetForm() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('expenseDate').value = today;
     document.getElementById('expenseName').value = '';
     document.getElementById('expenseAmount').value = '';
     document.getElementById('expensePerson').value = '상우';

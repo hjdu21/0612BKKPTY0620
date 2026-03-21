@@ -25,14 +25,16 @@ function syncFromGoogleSheet() {
         })
         .then(data => {
             if (data && Array.isArray(data)) {
-                // 각 항목에 고유 id 부여 (timestamp+description+date) + 숫자 타입 변환
+                // 각 항목에 고유 id 부여 (timestamp+description+date) + 숫자 타입 변환 + 날짜 정규화
                 expenses = data.map(item => ({
                     ...item,
                     id: item.timestamp ? `${item.timestamp}_${item.description}_${item.date}` : `${item.description}_${item.date}`,
                     baht: Number(item.baht) || 0,
-                    won: Number(item.won) || 0
+                    won: Number(item.won) || 0,
+                    date: normalizeDate(item.date)
                 }));
                 console.log(`✅ 구글시트에서 ${expenses.length}개 데이터 로드됨`);
+                console.log('📊 데이터 샘플:', expenses[0]);
                 updateExpenseTable();
                 updateSummary();
             }
@@ -65,17 +67,18 @@ function loadDataFromGoogleSheet() {
         })
         .then(data => {
             if (data && Array.isArray(data)) {
-                // 각 항목에 고유 id 부여 (timestamp+description+date) + 숫자 타입 변환
+                // 각 항목에 고유 id 부여 (timestamp+description+date) + 숫자 타입 변환 + 날짜 정규화
                 expenses = data.map(item => ({
                     ...item,
                     id: item.timestamp ? `${item.timestamp}_${item.description}_${item.date}` : `${item.description}_${item.date}`,
                     baht: Number(item.baht) || 0,
-                    won: Number(item.won) || 0
+                    won: Number(item.won) || 0,
+                    date: normalizeDate(item.date)
                 }));
                 saveExpenses();
                 
                 console.log(`✅ 구글시트에서 ${expenses.length}개 데이터 로드됨`);
-                console.log('📊 새로운 데이터:', expenses);
+                console.log('📊 새로운 데이터:', expenses[0]);
                 
                 updateExpenseTable();
                 updateSummary();
@@ -223,6 +226,35 @@ console.log('🎉 즐거운 여행 되세요!');
 // ════════════════════════════════════
 // 💰 경비 기록 함수
 // ════════════════════════════════════
+
+// 날짜 정규화 함수 (ISO 형식 → YYYY-MM-DD)
+function normalizeDate(dateStr) {
+    if (!dateStr) return new Date().toISOString().split('T')[0];
+    
+    // ISO 형식 (2026-03-21T10:24:39.000Z) 처리
+    if (typeof dateStr === 'string' && dateStr.includes('T')) {
+        return dateStr.substring(0, 10);
+    }
+    
+    // 이미 YYYY-MM-DD 형식이면 그대로 반환
+    if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        return dateStr;
+    }
+    
+    return new Date().toISOString().split('T')[0];
+}
+
+// 날짜에 요일 추가 (2026-03-21 → 2026-03-21 (토))
+function formatDateWithDay(dateStr) {
+    const normalized = normalizeDate(dateStr);
+    if (!normalized) return '날짜 없음';
+    
+    const dateObj = new Date(normalized + 'T00:00:00');
+    const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+    const dayName = dayNames[dateObj.getDay()];
+    
+    return `${normalized} (${dayName})`;
+}
 
 // 경비 추가 또는 수정 함수 (Google Sheet + 로컬 저장)
 function addExpense() {
@@ -406,12 +438,9 @@ function updateExpenseTable() {
         const dateCell = dateRow.insertCell(0);
         dateCell.colSpan = 6;
         
-        // 날짜를 읽기 좋게 포맷 (YYYY-MM-DD 형식만 추출)
-        const dateStr = typeof date === 'string' ? date.substring(0, 10) : date;
-        const dateObj = new Date(dateStr + 'T00:00:00');
-        const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-        const dayName = dayNames[dateObj.getDay()];
-        dateCell.textContent = `📅 ${dateStr} (${dayName})`;
+        // 날짜를 요일과 함께 표시
+        const displayDate = formatDateWithDay(date);
+        dateCell.textContent = `📅 ${displayDate}`;
 
         // 해당 날짜의 항목들
         items.forEach(expense => {

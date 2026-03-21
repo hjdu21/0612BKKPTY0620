@@ -10,6 +10,7 @@ let EXCHANGE_RATE = DEFAULT_EXCHANGE_RATE; // 동적 환율
 // 페이지 로드 완료 후 실행
 document.addEventListener('DOMContentLoaded', function() {
     console.log('여행 계획 페이지 로드됨!');
+    console.log(`⚙️ 초기 EXCHANGE_RATE=${EXCHANGE_RATE}`);
     
     // 페이지 로드 애니메이션
     animateOnScroll();
@@ -22,6 +23,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 실시간 환율 가져오기
     fetchExchangeRate();
+    setTimeout(() => {
+        console.log(`⏱️ 500ms 후 EXCHANGE_RATE=${EXCHANGE_RATE}`);
+    }, 500);
     
     // 날짜 입력란 기본값을 오늘로 설정
     const today = new Date().toISOString().split('T')[0];
@@ -123,9 +127,14 @@ function addExpense() {
     const date = document.getElementById('expenseDate').value;
     const name = document.getElementById('expenseName').value.trim();
     const amount = parseFloat(document.getElementById('expenseAmount').value);
-    const currencyType = document.getElementById('currencyType').value;
+    const currencyTypeSelect = document.getElementById('currencyType');
+    const currencyType = currencyTypeSelect.value;
     const person = document.getElementById('expensePerson').value;
 
+    console.log(`📝 입력값: date=${date}, name=${name}, amount=${amount}, currencyType=${currencyType}, person=${person}`);
+    console.log(`🔍 select 요소 확인:`, currencyTypeSelect);
+    console.log(`🔍 select 모든 option 확인:`, Array.from(currencyTypeSelect.options).map(o => `${o.value}: ${o.text}`));
+    
     if (!date || !name || !amount || amount <= 0) {
         alert('날짜, 항목명, 금액을 모두 입력해주세요.');
         return;
@@ -133,6 +142,7 @@ function addExpense() {
 
     // 통화에 따라 바트와 원화 계산
     let baht, won;
+    console.log(`💱 환율 확인: EXCHANGE_RATE=${EXCHANGE_RATE}`);
     console.log(`DEBUG: currencyType=${currencyType}, amount=${amount}, EXCHANGE_RATE=${EXCHANGE_RATE}`);
     if (currencyType === 'baht') {
         // 바트 입력

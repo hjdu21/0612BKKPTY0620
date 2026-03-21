@@ -337,9 +337,12 @@ function fetchExchangeRate() {
     fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
+            console.log('DEBUG: API 응답:', data);
             // KRW 환율 추출
             const rate = data.rates.KRW;
+            console.log(`DEBUG: 추출된 환율=${rate}`);
             EXCHANGE_RATE = Math.round(rate * 100) / 100; // 소수점 2자리로 반올림
+            console.log(`DEBUG: 최종 EXCHANGE_RATE=${EXCHANGE_RATE}`);
             
             // UI 업데이트
             document.getElementById('exchangeRateValue').textContent = EXCHANGE_RATE.toFixed(2);

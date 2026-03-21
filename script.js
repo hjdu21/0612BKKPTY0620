@@ -421,8 +421,8 @@ function updateExpenseTable() {
                 <td>฿ ${expense.baht.toLocaleString()}</td>
                 <td>₩ ${expense.won.toLocaleString()}</td>
                 <td>${expense.person}</td>
-                <td><button onclick="editExpense(${expense.id})" class="edit-btn">수정</button></td>
-                <td><button onclick="deleteExpense(${expense.id})" class="delete-btn">삭제</button></td>
+                <td><button onclick="editExpense('${expense.id}')" class="edit-btn">수정</button></td>
+                <td><button onclick="deleteExpense('${expense.id}')" class="delete-btn">삭제</button></td>
             `;
             if (editingId === expense.id) {
                 row.style.backgroundColor = '#fff3cd';

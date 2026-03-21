@@ -406,11 +406,12 @@ function updateExpenseTable() {
         const dateCell = dateRow.insertCell(0);
         dateCell.colSpan = 6;
         
-        // 날짜를 읽기 좋게 포맷
-        const dateObj = new Date(date + 'T00:00:00');
+        // 날짜를 읽기 좋게 포맷 (YYYY-MM-DD 형식만 추출)
+        const dateStr = typeof date === 'string' ? date.substring(0, 10) : date;
+        const dateObj = new Date(dateStr + 'T00:00:00');
         const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
         const dayName = dayNames[dateObj.getDay()];
-        dateCell.textContent = `📅 ${date} (${dayName})`;
+        dateCell.textContent = `📅 ${dateStr} (${dayName})`;
 
         // 해당 날짜의 항목들
         items.forEach(expense => {

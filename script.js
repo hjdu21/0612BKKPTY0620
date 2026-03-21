@@ -518,7 +518,12 @@ function saveExpenses() {
 function loadExpenses() {
     const saved = localStorage.getItem('travelExpenses');
     if (saved) {
-        expenses = JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // 각 항목의 date를 정규화
+        expenses = parsed.map(item => ({
+            ...item,
+            date: normalizeDate(item.date)
+        }));
         updateExpenseTable();
         updateSummary();
         console.log('📂 저장된 경비 로드됨:', expenses.length + '개');

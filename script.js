@@ -286,13 +286,11 @@ function updateExpenseTable() {
 function updateSummary() {
     const totalBaht = expenses.reduce((sum, e) => sum + e.baht, 0);
     const totalKRW = expenses.reduce((sum, e) => sum + e.won, 0);
-    const perPerson = Math.round(totalKRW / 2);
 
     document.getElementById('totalBaht').textContent = totalBaht.toLocaleString();
     document.getElementById('totalKRW').textContent = totalKRW.toLocaleString();
-    document.getElementById('perPerson').textContent = perPerson.toLocaleString();
 
-    console.log(`💰 총 지출: ${totalKRW.toLocaleString()}원 (1인당: ${perPerson.toLocaleString()}원)`);
+    console.log(`💰 총 지출: ${totalKRW.toLocaleString()}원`);
 }
 
 // localStorage에 저장

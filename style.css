@@ -348,12 +348,12 @@ section h2 {
 /* 통화 선택 가능한 금액 입력 */
 .amount-input-wrapper {
     display: flex;
-    gap: 8px;
-    align-items: center;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .amount-input-wrapper input {
-    flex: 2;
+    width: 100%;
     padding: 10px;
     border: 2px solid #e0f2fe;
     border-radius: 6px;
@@ -362,11 +362,11 @@ section h2 {
 }
 
 .amount-input-wrapper select {
-    flex: 1;
-    padding: 10px;
+    width: 100%;
+    padding: 8px;
     border: 2px solid #06b6d4;
     border-radius: 6px;
-    font-size: 0.9em;
+    font-size: 0.85em;
     background: #f0f9ff;
     color: #0369a1;
     font-weight: 600;
@@ -671,14 +671,23 @@ section h2 {
 @media (max-width: 768px) {
     body {
         padding: 10px;
+        font-size: 15px;
     }
 
     .container {
         border-radius: 10px;
     }
 
+    .header {
+        padding: 25px 15px;
+    }
+
     .header h1 {
         font-size: 1.8em;
+    }
+
+    .header p {
+        font-size: 0.95em;
     }
 
     section {
@@ -687,6 +696,75 @@ section h2 {
 
     section h2 {
         font-size: 1.5em;
+    }
+
+    /* 경비 입력 폼 최적화 */
+    .expense-input-form {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .input-group {
+        width: 100%;
+    }
+
+    .amount-input-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .amount-input-wrapper input,
+    .amount-input-wrapper select {
+        width: 100%;
+        font-size: 16px; /* iOS 줌 방지 */
+        padding: 12px;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .expense-input-form button {
+        width: 100%;
+        padding: 12px;
+        font-size: 0.95em;
+    }
+
+    /* 경비 테이블 */
+    .expense-table {
+        font-size: 0.9em;
+    }
+
+    .expense-table th,
+    .expense-table td {
+        padding: 8px;
+    }
+
+    .expense-table .edit-btn,
+    .expense-table .delete-btn {
+        padding: 4px 8px;
+        font-size: 0.75em;
+        margin: 2px;
+    }
+
+    /* 환율 박스 */
+    .exchange-rate-box {
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 12px 15px;
+    }
+
+    .exchange-rate-box strong {
+        font-size: 1.1em;
+        width: 100%;
+    }
+
+    .refresh-btn {
+        flex: 1;
+        padding: 10px;
+        min-width: 100px;
     }
 
     .timeline::before {
@@ -718,6 +796,7 @@ section h2 {
 
     .budget-grid {
         grid-template-columns: 1fr;
+        gap: 15px;
     }
 
     .info-row {
@@ -727,6 +806,194 @@ section h2 {
 
     .activity-icon {
         font-size: 2.5em;
+    }
+}
+
+/* 아주 작은 화면 (480px 이하) */
+@media (max-width: 480px) {
+    body {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .container {
+        padding: 15px;
+        max-width: 100%;
+    }
+
+    .header {
+        padding: 20px 10px;
+    }
+
+    .header h1 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+
+    .header p {
+        font-size: 0.85em;
+        margin-bottom: 8px;
+    }
+
+    .header .remaining-days {
+        font-size: 0.9em;
+    }
+
+    section {
+        padding: 20px 12px;
+        margin-bottom: 15px;
+    }
+
+    section h2 {
+        font-size: 1.3em;
+        margin-bottom: 15px;
+    }
+
+    /* 경비 입력 - 초소형 */
+    .expense-input-form {
+        gap: 10px;
+    }
+
+    .input-group label {
+        font-size: 0.85em;
+        font-weight: 600;
+    }
+
+    .amount-input-wrapper input,
+    .amount-input-wrapper select {
+        font-size: 16px;
+        padding: 12px;
+        border: 2px solid #e0f2fe;
+    }
+
+    .expense-input-form button {
+        padding: 12px;
+        font-size: 1em;
+        border-radius: 6px;
+    }
+
+    /* 경비 테이블 - 더 컴팩트 */
+    .expense-table {
+        font-size: 0.8em;
+    }
+
+    .expense-table th {
+        padding: 6px 4px;
+        font-size: 0.75em;
+    }
+
+    .expense-table td {
+        padding: 6px 4px;
+    }
+
+    .expense-table .edit-btn,
+    .expense-table .delete-btn {
+        padding: 3px 6px;
+        font-size: 0.65em;
+        margin: 1px;
+    }
+
+    /* 환율 박스 - 모바일 친화적 */
+    .exchange-rate-box {
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+        text-align: center;
+    }
+
+    .exchange-rate-box strong {
+        font-size: 1em;
+    }
+
+    .refresh-btn {
+        width: 100%;
+        padding: 10px;
+        font-size: 0.85em;
+    }
+
+    /* 타임라인 - 매우 작음 */
+    .timeline {
+        padding: 10px 0;
+    }
+
+    .timeline::before {
+        left: 10px;
+    }
+
+    .timeline-item {
+        margin-left: 45px;
+        margin-bottom: 20px;
+    }
+
+    .timeline-marker {
+        left: -42px;
+        width: 40px;
+        height: 40px;
+        font-size: 0.65em;
+    }
+
+    .timeline-content {
+        padding: 12px;
+        font-size: 0.9em;
+    }
+
+    .timeline-content h3 {
+        font-size: 0.95em;
+        margin-bottom: 10px;
+    }
+
+    .timeline-content ul {
+        margin-left: 0;
+    }
+
+    .timeline-content li {
+        padding: 6px 0;
+        padding-left: 20px;
+        font-size: 0.9em;
+    }
+
+    /* 활동 리스트 */
+    .activity {
+        padding: 12px;
+    }
+
+    .activity h4 {
+        font-size: 0.95em;
+        margin-bottom: 6px;
+    }
+
+    .activity p {
+        font-size: 0.85em;
+    }
+
+    /* 예산 카드 */
+    .budget-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .budget-card {
+        padding: 15px;
+    }
+
+    .price {
+        font-size: 1.2em;
+        margin: 10px 0;
+    }
+
+    /* 정보 행 */
+    .info-row {
+        grid-template-columns: 80px 1fr;
+        font-size: 0.85em;
+        gap: 10px;
+    }
+
+    .activity-icon {
+        font-size: 2em;
+    }
+
+    .exchange-rate-time {
+        font-size: 0.8em;
     }
 }
 

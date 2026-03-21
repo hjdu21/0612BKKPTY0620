@@ -323,11 +323,36 @@ function sendToGoogleSheet(expense) {
 // 경비 삭제 함수
 function deleteExpense(id) {
     if (confirm('이 항목을 삭제하시겠습니까?')) {
+        const deletedExpense = expenses.find(e => e.id === id);
+        
+        // 로컬에서 삭제
         expenses = expenses.filter(e => e.id !== id);
         saveExpenses();
         updateExpenseTable();
         updateSummary();
-        cancelEdit(); // 수정 중인데 삭제하면 폼 초기화
+        cancelEdit();
+        
+        // ✅ 구글시트에서도 삭제 요청
+        if (deletedExpense) {
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'delete',
+                    timestamp: deletedExpense.timestamp,
+                    date: deletedExpense.date,
+                    description: deletedExpense.description
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('✅ 구글시트에서도 삭제됨:', deletedExpense);
+            })
+            .catch(error => {
+                console.error('⚠️ 구글시트 삭제 실패:', error);
+                alert('⚠️ 주의: 로컬에서는 삭제되었지만 구글시트에서 자동 삭제 실패.\n다시 시도하거나 수동으로 삭제해주세요.');
+            });
+        }
+        
         console.log('🗑️ 경비 삭제됨:', id);
     }
 }

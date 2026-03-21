@@ -1,5 +1,5 @@
 // Google Apps Script 배포 URL
-const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbySuRcggDNDWSIGSEOfNlWkOS12zezajQlvYxFJXcql-vuFE8hFkEI-kt65SjMGoIcg/exec';
+const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxgIhFAHyLYHjiZ6YsZJlrNy1bE5PJhPEUuMKSBYNEQq9afQl7Wd_uPSFnnm1v_yAFA/exec';
 const DEFAULT_EXCHANGE_RATE = 46; // 기본값: 1 바트 = 46원
 
 // 경비 데이터

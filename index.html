@@ -17,7 +17,14 @@
         <!-- 경비 -->
         <section class="budget">
             <h2>💰 경비 / 비용</h2>
-            <p class="budget-note">💡 환율: 1 바트 ≈ 46원</p>
+            <!-- 실시간 환율 표시 -->
+            <div class="exchange-rate-box">
+                <span>💱 현재 환율: <strong>1 THB = <span id="exchangeRateValue">46</span>₩</strong></span>
+                <span id="exchangeRateTime" style="font-size: 0.9em; color: #666; margin-left: 10px;"></span>
+                <button onclick="refreshExchangeRate()" class="refresh-btn">🔄 환율 새로고침</button>
+            </div>
+            
+            <p class="budget-note">💡 환율은 자동으로 최신 정보로 업데이트됩니다</p>
             
             <!-- 경비 기록 입력 -->
             <div class="expense-tracker">

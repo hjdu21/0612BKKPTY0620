@@ -1,10 +1,11 @@
 // Google Apps Script 배포 URL
 const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyVgkGi2qW2v_d9d2-99ufqE6PfeD5Csg7b8q0xSU6OlK7T89Ra8XzJe-Kb7CeUREoB/exec';
-const EXCHANGE_RATE = 46; // 1 바트 = 46원
+const DEFAULT_EXCHANGE_RATE = 46; // 기본값: 1 바트 = 46원
 
 // 경비 데이터
 let expenses = [];
 let editingId = null; // 현재 수정 중인 항목 ID
+let EXCHANGE_RATE = DEFAULT_EXCHANGE_RATE; // 동적 환율
 
 // 페이지 로드 완료 후 실행
 document.addEventListener('DOMContentLoaded', function() {
@@ -18,6 +19,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 저장된 경비 로드
     loadExpenses();
+    
+    // 실시간 환율 가져오기
+    fetchExchangeRate();
     
     // 날짜 입력란 기본값을 오늘로 설정
     const today = new Date().toISOString().split('T')[0];
@@ -305,6 +309,90 @@ function loadExpenses() {
         updateSummary();
         console.log('📂 저장된 경비 로드됨:', expenses.length + '개');
     }
+}
+
+// ════════════════════════════════════
+// 💱 실시간 환율 함수
+// ════════════════════════════════════
+
+// 실시간 환율 가져오기 (Open Exchange Rates API 사용)
+function fetchExchangeRate() {
+    // exchangerate-api.com 사용 (무료, 가입 불필요, CORS 지원)
+    const apiUrl = 'https://api.exchangerate-api.com/v6/latest/THB';
+    
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            // KRW 환율 추출
+            const rate = data.rates.KRW;
+            EXCHANGE_RATE = Math.round(rate * 100) / 100; // 소수점 2자리로 반올림
+            
+            // UI 업데이트
+            document.getElementById('exchangeRateValue').textContent = EXCHANGE_RATE.toFixed(2);
+            
+            // 마지막 업데이트 시간 표시
+            const now = new Date();
+            const timeStr = now.toLocaleString('ko-KR', { 
+                month: 'short', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit'
+            });
+            document.getElementById('exchangeRateTime').textContent = `(${timeStr} 업데이트)`;
+            
+            // localStorage에 환율 저장
+            localStorage.setItem('exchangeRate', EXCHANGE_RATE);
+            localStorage.setItem('exchangeRateTime', now.toISOString());
+            
+            // 이미 입력된 금액 재계산
+            updateExpenseTable();
+            updateSummary();
+            
+            console.log(`💱 환율 업데이트: 1 THB = ${EXCHANGE_RATE} KRW`);
+        })
+        .catch(error => {
+            console.error('❌ 환율 가져오기 실패:', error);
+            
+            // 실패 시 localStorage에서 저장된 환율 사용
+            const savedRate = localStorage.getItem('exchangeRate');
+            if (savedRate) {
+                EXCHANGE_RATE = parseFloat(savedRate);
+                document.getElementById('exchangeRateValue').textContent = EXCHANGE_RATE.toFixed(2);
+                const savedTime = localStorage.getItem('exchangeRateTime');
+                if (savedTime) {
+                    const time = new Date(savedTime);
+                    const timeStr = time.toLocaleString('ko-KR', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        hour: '2-digit', 
+                        minute: '2-digit'
+                    });
+                    document.getElementById('exchangeRateTime').textContent = `(${timeStr} 저장됨)`;
+                }
+                console.log(`💾 저장된 환율 사용: 1 THB = ${EXCHANGE_RATE} KRW`);
+            } else {
+                // 저장된 환율도 없으면 기본값 사용
+                EXCHANGE_RATE = DEFAULT_EXCHANGE_RATE;
+                document.getElementById('exchangeRateValue').textContent = EXCHANGE_RATE.toFixed(2);
+                document.getElementById('exchangeRateTime').textContent = '(기본값)';
+                console.log(`🔧 기본값 사용: 1 THB = ${EXCHANGE_RATE} KRW`);
+            }
+        });
+}
+
+// 환율 새로고침 함수 (버튼 클릭 시)
+function refreshExchangeRate() {
+    const btn = document.querySelector('.refresh-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ 업데이트 중...';
+    
+    fetchExchangeRate();
+    
+    // 2초 후 버튼 복원
+    setTimeout(() => {
+        btn.disabled = false;
+        btn.textContent = '🔄 환율 새로고침';
+    }, 2000);
 }
 
 // 수정 모드 시작

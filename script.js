@@ -359,18 +359,17 @@ function loadExpenses() {
 
 // 실시간 환율 가져오기 (Open Exchange Rates API 사용)
 function fetchExchangeRate() {
-    // exchangerate-api.com 사용 (무료, 가입 불필요, CORS 지원)
-    const apiUrl = 'https://api.exchangerate-api.com/v6/latest/THB';
+    // exchangerate-api.com 사용 (무료, 가입 불필요)
+    // CORS 우회를 위해 다른 API 사용
+    const apiUrl = 'https://open.er-api.com/v6/latest/THB';
     
     fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
-            console.log('DEBUG: API 응답:', data);
+            console.log('✅ API 환율 조회 성공:', data);
             // KRW 환율 추출
             const rate = data.rates.KRW;
-            console.log(`DEBUG: 추출된 환율=${rate}`);
-            EXCHANGE_RATE = Math.round(rate * 100) / 100; // 소수점 2자리로 반올림
-            console.log(`DEBUG: 최종 EXCHANGE_RATE=${EXCHANGE_RATE}`);
+            EXCHANGE_RATE = Math.round(rate * 100) / 100;
             
             // UI 업데이트
             document.getElementById('exchangeRateValue').textContent = EXCHANGE_RATE.toFixed(2);

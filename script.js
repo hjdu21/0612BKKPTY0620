@@ -231,14 +231,16 @@ console.log('🎉 즐거운 여행 되세요!');
 function normalizeDate(dateStr) {
     if (!dateStr) return new Date().toISOString().split('T')[0];
     
-    // ISO 형식 (2026-03-21T10:24:39.000Z) 처리
-    if (typeof dateStr === 'string' && dateStr.includes('T')) {
-        return dateStr.substring(0, 10);
-    }
-    
-    // 이미 YYYY-MM-DD 형식이면 그대로 반환
-    if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-        return dateStr;
+    // 문자열인 경우
+    if (typeof dateStr === 'string') {
+        // ISO 형식 (2026-03-21T10:24:39.000Z) 처리
+        if (dateStr.includes('T')) {
+            return dateStr.substring(0, 10);
+        }
+        // 이미 YYYY-MM-DD 형식이면 그대로 반환
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+            return dateStr;
+        }
     }
     
     return new Date().toISOString().split('T')[0];
@@ -246,14 +248,20 @@ function normalizeDate(dateStr) {
 
 // 날짜에 요일 추가 (2026-03-21 → 2026-03-21 (토))
 function formatDateWithDay(dateStr) {
-    const normalized = normalizeDate(dateStr);
-    if (!normalized) return '날짜 없음';
-    
-    const dateObj = new Date(normalized + 'T00:00:00');
-    const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-    const dayName = dayNames[dateObj.getDay()];
-    
-    return `${normalized} (${dayName})`;
+    try {
+        let normalized = normalizeDate(dateStr);
+        
+        const [year, month, day] = normalized.split('-').map(Number);
+        const dateObj = new Date(year, month - 1, day);
+        
+        const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+        const dayName = dayNames[dateObj.getDay()];
+        
+        return `${normalized} (${dayName})`;
+    } catch (e) {
+        console.error('날짜 포맷팅 오류:', dateStr, e);
+        return normalizeDate(dateStr);
+    }
 }
 
 // 경비 추가 또는 수정 함수 (Google Sheet + 로컬 저장)

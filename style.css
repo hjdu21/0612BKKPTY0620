@@ -311,6 +311,78 @@ section h2 {
     font-size: 0.95em;
 }
 
+/* 경비 관련 스타일 */
+.budget-note {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    color: #856404;
+    font-weight: 500;
+    font-size: 0.95em;
+}
+
+/* 경비 카드 */
+.budget-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.budget-card {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border: 2px solid #ff6b6b;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.budget-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(255, 107, 107, 0.2);
+    border-color: #ee5a52;
+}
+
+.budget-card h3 {
+    color: #ff6b6b;
+    margin-bottom: 12px;
+    font-size: 1.3em;
+}
+
+.budget-card p {
+    color: #666;
+    margin-bottom: 8px;
+    font-size: 0.95em;
+}
+
+.price {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #ff6b6b;
+    margin: 12px 0;
+}
+
+.note {
+    background: #ffe0e0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85em;
+    color: #d63031;
+}
+
+.net-price {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #27ae60;
+    background: #eafaf1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-top: 8px;
+}
+
 /* 푸터 */
 .footer {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -375,6 +447,10 @@ section h2 {
     }
 
     .activity-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .budget-grid {
         grid-template-columns: 1fr;
     }
 

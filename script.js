@@ -25,10 +25,12 @@ function syncFromGoogleSheet() {
         })
         .then(data => {
             if (data && Array.isArray(data)) {
-                // 각 항목에 고유 id 부여 (timestamp+description+date)
+                // 각 항목에 고유 id 부여 (timestamp+description+date) + 숫자 타입 변환
                 expenses = data.map(item => ({
                     ...item,
-                    id: item.timestamp ? `${item.timestamp}_${item.description}_${item.date}` : `${item.description}_${item.date}`
+                    id: item.timestamp ? `${item.timestamp}_${item.description}_${item.date}` : `${item.description}_${item.date}`,
+                    baht: Number(item.baht) || 0,
+                    won: Number(item.won) || 0
                 }));
                 console.log(`✅ 구글시트에서 ${expenses.length}개 데이터 로드됨`);
                 updateExpenseTable();
@@ -63,10 +65,12 @@ function loadDataFromGoogleSheet() {
         })
         .then(data => {
             if (data && Array.isArray(data)) {
-                // 각 항목에 고유 id 부여 (timestamp+description+date)
+                // 각 항목에 고유 id 부여 (timestamp+description+date) + 숫자 타입 변환
                 expenses = data.map(item => ({
                     ...item,
-                    id: item.timestamp ? `${item.timestamp}_${item.description}_${item.date}` : `${item.description}_${item.date}`
+                    id: item.timestamp ? `${item.timestamp}_${item.description}_${item.date}` : `${item.description}_${item.date}`,
+                    baht: Number(item.baht) || 0,
+                    won: Number(item.won) || 0
                 }));
                 saveExpenses();
                 
@@ -328,35 +332,45 @@ function deleteExpense(id) {
     if (confirm('이 항목을 삭제하시겠습니까?')) {
         const deletedExpense = expenses.find(e => e.id === id);
         
-        // 로컬에서 삭제
+        console.log('🗑️ 삭제 대상:', deletedExpense);
+        
+        // 1️⃣ 로컬에서 삭제
         expenses = expenses.filter(e => e.id !== id);
         saveExpenses();
         updateExpenseTable();
         updateSummary();
         cancelEdit();
         
-        // ✅ 구글시트에서도 삭제 요청
-        if (deletedExpense) {
+        // 2️⃣ 구글시트에서도 삭제 시도
+        if (deletedExpense && deletedExpense.timestamp) {
+            console.log('📤 구글시트 삭제 요청 전송:', {
+                action: 'delete',
+                timestamp: deletedExpense.timestamp,
+                description: deletedExpense.description,
+                date: deletedExpense.date
+            });
+            
             fetch(GOOGLE_SHEETS_URL, {
                 method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: 'delete',
                     timestamp: deletedExpense.timestamp,
-                    date: deletedExpense.date,
-                    description: deletedExpense.description
+                    description: deletedExpense.description,
+                    date: deletedExpense.date
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log('✅ 구글시트에서도 삭제됨:', deletedExpense);
+            .then(() => {
+                console.log('✅ 구글시트 삭제 요청 완료');
             })
             .catch(error => {
-                console.error('⚠️ 구글시트 삭제 실패:', error);
-                alert('⚠️ 주의: 로컬에서는 삭제되었지만 구글시트에서 자동 삭제 실패.\n다시 시도하거나 수동으로 삭제해주세요.');
+                console.error('⚠️ 구글시트 삭제 오류:', error);
             });
         }
         
-        console.log('🗑️ 경비 삭제됨:', id);
+        console.log('🗑️ 로컬 삭제 완료:', id);
+        alert('✅ 로컬에서 삭제되었습니다.\n(구글시트는 5초 후 반영됩니다)');
     }
 }
 

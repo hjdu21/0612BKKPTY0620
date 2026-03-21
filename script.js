@@ -37,6 +37,7 @@ function syncFromGoogleSheet() {
                 console.log('📊 데이터 샘플:', expenses[0]);
                 updateExpenseTable();
                 updateSummary();
+                saveExpenses(); // 💾 동기화된 데이터를 localStorage에도 저장하여 삭제 항목이 복구되지 않도록 방지
             }
         })
         .catch(error => {
@@ -122,9 +123,10 @@ document.addEventListener('DOMContentLoaded', function() {
     loadExpenses();
     
     // 🔄 구글시트와 동기화 시도 (다른 기기의 데이터 받기)
+    // ⏱️ 4초 대기: Google Apps Script 서버의 DELETE 처리 완료 대기
     setTimeout(() => {
         syncFromGoogleSheet();
-    }, 1000);
+    }, 4000);
     
     // 실시간 환율 가져오기
     fetchExchangeRate();

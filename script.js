@@ -17,7 +17,6 @@ function syncFromGoogleSheet() {
     
     fetch(GOOGLE_SHEETS_URL + '?action=getAll')
         .then(response => {
-            // GET 요청이 작동하지 않을 수도 있으므로 에러 처리
             if (!response.ok) {
                 console.log('⚠️ 구글시트 동기화 불가 (GET 미지원)');
                 return null;
@@ -26,15 +25,18 @@ function syncFromGoogleSheet() {
         })
         .then(data => {
             if (data && Array.isArray(data)) {
-                expenses = data;
-                console.log(`✅ 구글시트에서 ${data.length}개 데이터 로드됨`);
+                // 각 항목에 고유 id 부여 (timestamp+description+date)
+                expenses = data.map(item => ({
+                    ...item,
+                    id: item.timestamp ? `${item.timestamp}_${item.description}_${item.date}` : `${item.description}_${item.date}`
+                }));
+                console.log(`✅ 구글시트에서 ${expenses.length}개 데이터 로드됨`);
                 updateExpenseTable();
                 updateSummary();
             }
         })
         .catch(error => {
             console.log('⚠️ 구글시트 동기화 실패:', error.message);
-            // 에러 발생 시 로컬 데이터 유지
         });
 }
 
@@ -61,19 +63,19 @@ function loadDataFromGoogleSheet() {
         })
         .then(data => {
             if (data && Array.isArray(data)) {
-                // ✅ localStorage 완전 초기화
-                expenses = data;
-                saveExpenses(); // 새로운 데이터로 저장
+                // 각 항목에 고유 id 부여 (timestamp+description+date)
+                expenses = data.map(item => ({
+                    ...item,
+                    id: item.timestamp ? `${item.timestamp}_${item.description}_${item.date}` : `${item.description}_${item.date}`
+                }));
+                saveExpenses();
                 
-                console.log(`✅ 구글시트에서 ${data.length}개 데이터 로드됨`);
+                console.log(`✅ 구글시트에서 ${expenses.length}개 데이터 로드됨`);
                 console.log('📊 새로운 데이터:', expenses);
                 
-                // UI 업데이트
                 updateExpenseTable();
                 updateSummary();
-                
-                // 성공 알림
-                alert(`✅ 성공! ${data.length}개 항목이 동기화되었습니다.`);
+                alert(`✅ 성공! ${expenses.length}개 항목이 동기화되었습니다.`);
             } else {
                 alert('⚠️ 구글시트에 데이터가 없습니다.');
             }
@@ -83,7 +85,6 @@ function loadDataFromGoogleSheet() {
             alert('❌ 동기화 실패: ' + error.message);
         })
         .finally(() => {
-            // 버튼 원래대로
             if (btn) {
                 btn.disabled = false;
                 btn.style.opacity = '1';
@@ -269,14 +270,16 @@ function addExpense() {
         editingId = null;
     } else {
         // 추가 모드: 새 항목 생성
+        const now = new Date();
+        const timestamp = now.toLocaleString('ko-KR');
         const expense = {
-            id: Date.now(),
+            id: `${timestamp}_${name}_${date}`,
             date: date,
             description: name,
             baht: baht,
             won: won,
             person: person,
-            timestamp: new Date().toLocaleString('ko-KR')
+            timestamp: timestamp
         };
         expenses.push(expense);
         console.log('✅ 경비 추가됨:', expense);

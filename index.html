@@ -39,8 +39,14 @@
                         <input type="text" id="expenseName" placeholder="예: 숙박, 식사, 액티비티" />
                     </div>
                     <div class="input-group">
-                        <label for="expenseAmount">금액 (바트):</label>
-                        <input type="number" id="expenseAmount" placeholder="예: 1000" />
+                        <label for="expenseAmount">금액:</label>
+                        <div class="amount-input-wrapper">
+                            <input type="number" id="expenseAmount" placeholder="예: 1000" />
+                            <select id="currencyType">
+                                <option value="won">₩ 원화</option>
+                                <option value="baht">฿ 바트</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="input-group">
                         <label for="expensePerson">담당자:</label>

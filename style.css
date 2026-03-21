@@ -345,6 +345,42 @@ section h2 {
     font-size: 0.9em;
 }
 
+/* 통화 선택 가능한 금액 입력 */
+.amount-input-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.amount-input-wrapper input {
+    flex: 2;
+    padding: 10px;
+    border: 2px solid #e0f2fe;
+    border-radius: 6px;
+    font-size: 0.95em;
+    font-family: inherit;
+}
+
+.amount-input-wrapper select {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid #06b6d4;
+    border-radius: 6px;
+    font-size: 0.9em;
+    background: #f0f9ff;
+    color: #0369a1;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.amount-input-wrapper input:focus,
+.amount-input-wrapper select:focus {
+    outline: none;
+    border-color: #0ea5e9;
+    background: white;
+}
+
 .input-group input,
 .input-group select {
     padding: 10px;

@@ -123,11 +123,24 @@ function addExpense() {
     const date = document.getElementById('expenseDate').value;
     const name = document.getElementById('expenseName').value.trim();
     const amount = parseFloat(document.getElementById('expenseAmount').value);
+    const currencyType = document.getElementById('currencyType').value;
     const person = document.getElementById('expensePerson').value;
 
     if (!date || !name || !amount || amount <= 0) {
         alert('날짜, 항목명, 금액을 모두 입력해주세요.');
         return;
+    }
+
+    // 통화에 따라 바트와 원화 계산
+    let baht, won;
+    if (currencyType === 'baht') {
+        // 바트 입력
+        baht = amount;
+        won = Math.round(amount * EXCHANGE_RATE);
+    } else {
+        // 원화 입력
+        won = amount;
+        baht = Math.round(amount / EXCHANGE_RATE);
     }
 
     if (editingId !== null) {
@@ -136,8 +149,8 @@ function addExpense() {
         if (index !== -1) {
             expenses[index].date = date;
             expenses[index].description = name;
-            expenses[index].baht = amount;
-            expenses[index].won = Math.round(amount * EXCHANGE_RATE);
+            expenses[index].baht = baht;
+            expenses[index].won = won;
             expenses[index].person = person;
             console.log('✏️ 경비 수정됨:', expenses[index]);
         }
@@ -148,8 +161,8 @@ function addExpense() {
             id: Date.now(),
             date: date,
             description: name,
-            baht: amount,
-            won: Math.round(amount * EXCHANGE_RATE),
+            baht: baht,
+            won: won,
             person: person,
             timestamp: new Date().toLocaleString('ko-KR')
         };
@@ -431,6 +444,7 @@ function resetForm() {
     document.getElementById('expenseDate').value = today;
     document.getElementById('expenseName').value = '';
     document.getElementById('expenseAmount').value = '';
+    document.getElementById('currencyType').value = 'won';
     document.getElementById('expensePerson').value = '상우';
     document.getElementById('submitBtn').textContent = '추가하기';
     document.getElementById('submitBtn').style.backgroundColor = '';

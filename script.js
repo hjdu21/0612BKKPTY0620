@@ -4,6 +4,7 @@ const EXCHANGE_RATE = 46; // 1 바트 = 46원
 
 // 경비 데이터
 let expenses = [];
+let editingId = null; // 현재 수정 중인 항목 ID
 
 // 페이지 로드 완료 후 실행
 document.addEventListener('DOMContentLoaded', function() {
@@ -109,7 +110,7 @@ console.log('🎉 즐거운 여행 되세요!');
 // 💰 경비 기록 함수
 // ════════════════════════════════════
 
-// 경비 추가 함수 (Google Sheet + 로컬 저장)
+// 경비 추가 또는 수정 함수 (Google Sheet + 로컬 저장)
 function addExpense() {
     const name = document.getElementById('expenseName').value.trim();
     const amount = parseFloat(document.getElementById('expenseAmount').value);
@@ -120,32 +121,41 @@ function addExpense() {
         return;
     }
 
-    const expense = {
-        id: Date.now(),
-        description: name,
-        baht: amount,
-        won: Math.round(amount * EXCHANGE_RATE),
-        person: person,
-        date: new Date().toLocaleString('ko-KR')
-    };
+    if (editingId !== null) {
+        // 수정 모드: 기존 항목 업데이트
+        const index = expenses.findIndex(e => e.id === editingId);
+        if (index !== -1) {
+            expenses[index].description = name;
+            expenses[index].baht = amount;
+            expenses[index].won = Math.round(amount * EXCHANGE_RATE);
+            expenses[index].person = person;
+            console.log('✏️ 경비 수정됨:', expenses[index]);
+        }
+        editingId = null;
+    } else {
+        // 추가 모드: 새 항목 생성
+        const expense = {
+            id: Date.now(),
+            description: name,
+            baht: amount,
+            won: Math.round(amount * EXCHANGE_RATE),
+            person: person,
+            date: new Date().toLocaleString('ko-KR')
+        };
+        expenses.push(expense);
+        console.log('✅ 경비 추가됨:', expense);
+        sendToGoogleSheet(expense);
+    }
 
     // 1. 로컬 저장
-    expenses.push(expense);
     saveExpenses();
 
-    // 2. Google Sheet로 전송 (비동기)
-    sendToGoogleSheet(expense);
-
-    // 3. UI 업데이트
+    // 2. UI 업데이트
     updateExpenseTable();
     updateSummary();
 
-    // 4. 입력창 초기화
-    document.getElementById('expenseName').value = '';
-    document.getElementById('expenseAmount').value = '';
-    document.getElementById('expenseName').focus();
-
-    console.log('✅ 경비 추가됨:', expense);
+    // 3. 입력창 초기화 및 버튼 복원
+    resetForm();
 }
 
 // Google Apps Script로 데이터 전송
@@ -181,6 +191,7 @@ function deleteExpense(id) {
         saveExpenses();
         updateExpenseTable();
         updateSummary();
+        cancelEdit(); // 수정 중인데 삭제하면 폼 초기화
         console.log('🗑️ 경비 삭제됨:', id);
     }
 }
@@ -197,8 +208,13 @@ function updateExpenseTable() {
             <td>฿ ${expense.baht.toLocaleString()}</td>
             <td>₩ ${expense.won.toLocaleString()}</td>
             <td>${expense.person}</td>
+            <td><button onclick="editExpense(${expense.id})" class="edit-btn">수정</button></td>
             <td><button onclick="deleteExpense(${expense.id})" class="delete-btn">삭제</button></td>
         `;
+        // 수정 중인 항목 하이라이트
+        if (editingId === expense.id) {
+            row.style.backgroundColor = '#fff3cd';
+        }
     });
 }
 
@@ -229,4 +245,48 @@ function loadExpenses() {
         updateSummary();
         console.log('📂 저장된 경비 로드됨:', expenses.length + '개');
     }
+}
+
+// 수정 모드 시작
+function editExpense(id) {
+    const expense = expenses.find(e => e.id === id);
+    if (!expense) return;
+
+    // 폼에 데이터 채우기
+    document.getElementById('expenseName').value = expense.description;
+    document.getElementById('expenseAmount').value = expense.baht;
+    document.getElementById('expensePerson').value = expense.person;
+
+    // 수정 모드 표시
+    editingId = id;
+    document.getElementById('submitBtn').textContent = '수정하기';
+    document.getElementById('submitBtn').style.backgroundColor = '#ec4899';
+    document.getElementById('cancelBtn').style.display = 'inline-block';
+
+    // 테이블 업데이트 (수정 행 하이라이트)
+    updateExpenseTable();
+
+    // 폼 위치로 스크롤
+    document.getElementById('expenseName').focus();
+
+    console.log('✏️ 수정 모드:', expense);
+}
+
+// 수정 취소
+function cancelEdit() {
+    editingId = null;
+    resetForm();
+}
+
+// 폼 초기화 및 버튼 복원
+function resetForm() {
+    document.getElementById('expenseName').value = '';
+    document.getElementById('expenseAmount').value = '';
+    document.getElementById('expensePerson').value = '상우';
+    document.getElementById('submitBtn').textContent = '추가하기';
+    document.getElementById('submitBtn').style.backgroundColor = '';
+    document.getElementById('cancelBtn').style.display = 'none';
+    editingId = null;
+    updateExpenseTable();
+    document.getElementById('expenseName').focus();
 }

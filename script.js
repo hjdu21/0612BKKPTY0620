@@ -266,7 +266,7 @@ function formatDateWithDay(dateStr) {
 
 // 경비 추가 또는 수정 함수 (Google Sheet + 로컬 저장)
 function addExpense() {
-    const date = document.getElementById('expenseDate').value;
+    let date = document.getElementById('expenseDate').value;
     const name = document.getElementById('expenseName').value.trim();
     const amount = parseFloat(document.getElementById('expenseAmount').value);
     const currencyTypeSelect = document.getElementById('currencyType');
@@ -277,6 +277,9 @@ function addExpense() {
         alert('날짜, 항목명, 금액을 모두 입력해주세요.');
         return;
     }
+    
+    // 📌 date 정규화 (YYYY-MM-DD 형식 보장)
+    date = normalizeDate(date);
 
     // 통화에 따라 바트와 원화 계산
     let baht, won;

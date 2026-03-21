@@ -128,12 +128,16 @@ function addExpense() {
     const name = document.getElementById('expenseName').value.trim();
     const amount = parseFloat(document.getElementById('expenseAmount').value);
     const currencyTypeSelect = document.getElementById('currencyType');
-    const currencyType = currencyTypeSelect.value;
+    const currencyType = currencyTypeSelect ? currencyTypeSelect.value : 'won';
     const person = document.getElementById('expensePerson').value;
 
     console.log(`📝 입력값: date=${date}, name=${name}, amount=${amount}, currencyType=${currencyType}, person=${person}`);
-    console.log(`🔍 select 요소 확인:`, currencyTypeSelect);
-    console.log(`🔍 select 모든 option 확인:`, Array.from(currencyTypeSelect.options).map(o => `${o.value}: ${o.text}`));
+    console.log(`🔍 select 요소:`, currencyTypeSelect);
+    console.log(`🔍 select value 직접 확인:`, currencyTypeSelect ? currencyTypeSelect.value : 'SELECT NOT FOUND');
+    console.log(`🔍 currencyType 변수값:`, currencyType);
+    console.log(`🔍 typeof currencyType:`, typeof currencyType);
+    console.log(`🔍 currencyType === 'won':`, currencyType === 'won');
+    console.log(`🔍 currencyType === 'baht':`, currencyType === 'baht');
     
     if (!date || !name || !amount || amount <= 0) {
         alert('날짜, 항목명, 금액을 모두 입력해주세요.');
@@ -313,10 +317,19 @@ function updateSummary() {
     const totalBaht = expenses.reduce((sum, e) => sum + e.baht, 0);
     const totalKRW = expenses.reduce((sum, e) => sum + e.won, 0);
 
-    document.getElementById('totalBaht').textContent = totalBaht.toLocaleString();
-    document.getElementById('totalKRW').textContent = totalKRW.toLocaleString();
+    // 항공권 포함 (772,000원 = 약 16,783 바트)
+    const airfareKRW = 772000;
+    const airfareBAHT = Math.round(airfareKRW / EXCHANGE_RATE);
+    
+    const totalWithAirfareBAHT = totalBaht + airfareBAHT;
+    const totalWithAirfareKRW = totalKRW + airfareKRW;
 
-    console.log(`💰 총 지출: ${totalKRW.toLocaleString()}원`);
+    document.getElementById('totalBaht').textContent = totalWithAirfareBAHT.toLocaleString();
+    document.getElementById('totalKRW').textContent = totalWithAirfareKRW.toLocaleString();
+
+    console.log(`💰 경비 합계: ฿ ${totalBaht.toLocaleString()}, ₩ ${totalKRW.toLocaleString()}`);
+    console.log(`✈️ 항공권(고정): ฿ ${airfareBAHT.toLocaleString()}, ₩ ${airfareKRW.toLocaleString()}`);
+    console.log(`🎯 최종 총지출: ฿ ${totalWithAirfareBAHT.toLocaleString()}, ₩ ${totalWithAirfareKRW.toLocaleString()}`);
 }
 
 // localStorage에 저장

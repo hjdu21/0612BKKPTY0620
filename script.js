@@ -247,15 +247,34 @@ function normalizeDate(dateStr) {
 }
 
 // 날짜에 요일 추가 (2026-03-21 → 2026-03-21 (토))
+// Zeller's congruence로 순수 수학 계산 (타임존 문제 회피)
 function formatDateWithDay(dateStr) {
     try {
         let normalized = normalizeDate(dateStr);
+        let [year, month, day] = normalized.split('-').map(Number);
         
-        const [year, month, day] = normalized.split('-').map(Number);
-        const dateObj = new Date(year, month - 1, day);
+        // Zeller's congruence 알고리즘 (Date 객체 없이 순수 수학으로 요일 계산)
+        let m = month;
+        let y = year;
+        
+        // 1월, 2월은 이전 연도의 13월, 14월로 처리
+        if (m < 3) {
+            m += 12;
+            y -= 1;
+        }
+        
+        const q = day;
+        const K = y % 100;
+        const J = Math.floor(y / 100);
+        
+        // h: 0=Saturday, 1=Sunday, 2=Monday, ..., 6=Friday
+        const h = (q + Math.floor(13 * (m + 1) / 5) + K + Math.floor(K / 4) + Math.floor(J / 4) - 2 * J) % 7;
+        
+        // Zeller의 0=Saturday를 우리의 0=Sunday 기준으로 변환
+        const dayIndex = (h + 6) % 7;
         
         const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-        const dayName = dayNames[dateObj.getDay()];
+        const dayName = dayNames[dayIndex];
         
         return `${normalized} (${dayName})`;
     } catch (e) {

@@ -12,6 +12,13 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('여행 계획 페이지 로드됨!');
     console.log(`⚙️ 초기 EXCHANGE_RATE=${EXCHANGE_RATE}`);
     
+    // 💥 통화 선택 강제 설정 (기본값: 원화)
+    const currencySelect = document.getElementById('currencyType');
+    if (currencySelect) {
+        currencySelect.value = 'won';
+        console.log(`🔧 currencyType 강제 설정: won`);
+    }
+    
     // 페이지 로드 애니메이션
     animateOnScroll();
     
@@ -130,14 +137,6 @@ function addExpense() {
     const currencyTypeSelect = document.getElementById('currencyType');
     const currencyType = currencyTypeSelect ? currencyTypeSelect.value : 'won';
     const person = document.getElementById('expensePerson').value;
-
-    console.log(`📝 입력값: date=${date}, name=${name}, amount=${amount}, currencyType=${currencyType}, person=${person}`);
-    console.log(`🔍 select 요소:`, currencyTypeSelect);
-    console.log(`🔍 select value 직접 확인:`, currencyTypeSelect ? currencyTypeSelect.value : 'SELECT NOT FOUND');
-    console.log(`🔍 currencyType 변수값:`, currencyType);
-    console.log(`🔍 typeof currencyType:`, typeof currencyType);
-    console.log(`🔍 currencyType === 'won':`, currencyType === 'won');
-    console.log(`🔍 currencyType === 'baht':`, currencyType === 'baht');
     
     if (!date || !name || !amount || amount <= 0) {
         alert('날짜, 항목명, 금액을 모두 입력해주세요.');
@@ -146,19 +145,25 @@ function addExpense() {
 
     // 통화에 따라 바트와 원화 계산
     let baht, won;
-    console.log(`💱 환율 확인: EXCHANGE_RATE=${EXCHANGE_RATE}`);
-    console.log(`DEBUG: currencyType=${currencyType}, amount=${amount}, EXCHANGE_RATE=${EXCHANGE_RATE}`);
-    if (currencyType === 'baht') {
-        // 바트 입력
-        baht = amount;
-        won = Math.round(amount * EXCHANGE_RATE);
-        console.log(`DEBUG: 바트 입력 → baht=${baht}, won=${won}`);
-    } else {
-        // 원화 입력
+    
+    console.log(`\n========== 💰 경비 추가 시작 ==========`);
+    console.log(`📝 입력: 금액 ${amount}, 통화 선택: ${currencyType}`);
+    console.log(`💱 환율: 1 THB = ${EXCHANGE_RATE} KRW`);
+    
+    if (currencyType === 'won') {
+        // 원화 입력: 원화 → 바트
         won = amount;
         baht = Math.round(amount / EXCHANGE_RATE);
-        console.log(`DEBUG: 원화 입력 → baht=${baht}, won=${won}`);
+        console.log(`✅ 원화 입력 → ${amount}원 = ${baht}바트`);
+    } else {
+        // 바트 입력: 바트 → 원화
+        baht = amount;
+        won = Math.round(amount * EXCHANGE_RATE);
+        console.log(`✅ 바트 입력 → ${amount}바트 = ${won}원`);
     }
+    
+    console.log(`📊 저장될 값: baht=${baht}, won=${won}`);
+    console.log(`========================================\n`);
 
     if (editingId !== null) {
         // 수정 모드: 기존 항목 업데이트

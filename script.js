@@ -1,11 +1,42 @@
 // Google Apps Script 배포 URL
-const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyVgkGi2qW2v_d9d2-99ufqE6PfeD5Csg7b8q0xSU6OlK7T89Ra8XzJe-Kb7CeUREoB/exec';
+const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyqysAcqJ5cCAAqa7GbArkOQeF8og1-LLXW0LwR1aPBFlXXhcLhh4G1kbJm6q3ke0YG/exec';
 const DEFAULT_EXCHANGE_RATE = 46; // 기본값: 1 바트 = 46원
 
 // 경비 데이터
 let expenses = [];
 let editingId = null; // 현재 수정 중인 항목 ID
 let EXCHANGE_RATE = DEFAULT_EXCHANGE_RATE; // 동적 환율
+
+// ════════════════════════════════════
+// 🔄 구글시트와 동기화 (뛰어난 기기 간 동기화)
+// ════════════════════════════════════
+
+// 구글시트의 모든 데이터 가져오기
+function syncFromGoogleSheet() {
+    console.log('🔄 구글시트 데이터 동기화 시작...');
+    
+    fetch(GOOGLE_SHEETS_URL + '?action=getAll')
+        .then(response => {
+            // GET 요청이 작동하지 않을 수도 있으므로 에러 처리
+            if (!response.ok) {
+                console.log('⚠️ 구글시트 동기화 불가 (GET 미지원)');
+                return null;
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && Array.isArray(data)) {
+                expenses = data;
+                console.log(`✅ 구글시트에서 ${data.length}개 데이터 로드됨`);
+                updateExpenseTable();
+                updateSummary();
+            }
+        })
+        .catch(error => {
+            console.log('⚠️ 구글시트 동기화 실패:', error.message);
+            // 에러 발생 시 로컬 데이터 유지
+        });
+}
 
 // 페이지 로드 완료 후 실행
 document.addEventListener('DOMContentLoaded', function() {
@@ -27,6 +58,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 저장된 경비 로드
     loadExpenses();
+    
+    // 🔄 구글시트와 동기화 시도 (다른 기기의 데이터 받기)
+    setTimeout(() => {
+        syncFromGoogleSheet();
+    }, 1000);
     
     // 실시간 환율 가져오기
     fetchExchangeRate();

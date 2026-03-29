@@ -515,19 +515,29 @@ function updateSummary() {
     const totalBaht = expenses.reduce((sum, e) => sum + e.baht, 0);
     const totalKRW = expenses.reduce((sum, e) => sum + e.won, 0);
 
-    // 항공권 포함 (772,000원 = 약 16,783 바트)
-    const airfareKRW = 772000;
-    const airfareBAHT = Math.round(airfareKRW / EXCHANGE_RATE);
+    // 🎫 고정 비용 (항공권, 숙소, 교통)
+    const fixedCostsKRW = {
+        airfare: 772000,      // 항공권
+        accommodation: 34895, // 파타야 숙소 (Vane' Mane' Hotel)
+        taxi: 48101          // 방콕 → 파타야 택시 (블루망고투어)
+    };
     
-    const totalWithAirfareBAHT = totalBaht + airfareBAHT;
-    const totalWithAirfareKRW = totalKRW + airfareKRW;
+    const totalFixedKRW = Object.values(fixedCostsKRW).reduce((a, b) => a + b, 0);
+    const totalFixedBAHT = Math.round(totalFixedKRW / EXCHANGE_RATE);
+    
+    const totalWithFixedBAHT = totalBaht + totalFixedBAHT;
+    const totalWithFixedKRW = totalKRW + totalFixedKRW;
 
-    document.getElementById('totalBaht').textContent = totalWithAirfareBAHT.toLocaleString();
-    document.getElementById('totalKRW').textContent = totalWithAirfareKRW.toLocaleString();
+    document.getElementById('totalBaht').textContent = totalWithFixedBAHT.toLocaleString();
+    document.getElementById('totalKRW').textContent = totalWithFixedKRW.toLocaleString();
 
     console.log(`💰 경비 합계: ฿ ${totalBaht.toLocaleString()}, ₩ ${totalKRW.toLocaleString()}`);
-    console.log(`✈️ 항공권(고정): ฿ ${airfareBAHT.toLocaleString()}, ₩ ${airfareKRW.toLocaleString()}`);
-    console.log(`🎯 최종 총지출: ฿ ${totalWithAirfareBAHT.toLocaleString()}, ₩ ${totalWithAirfareKRW.toLocaleString()}`);
+    console.log(`🎫 고정 비용:`);
+    console.log(`  ✈️ 항공권: ₩ ${fixedCostsKRW.airfare.toLocaleString()}`);
+    console.log(`  🏨 숙소(파타야): ₩ ${fixedCostsKRW.accommodation.toLocaleString()}`);
+    console.log(`  🚕 택시: ₩ ${fixedCostsKRW.taxi.toLocaleString()}`);
+    console.log(`  📊 소계: ฿ ${totalFixedBAHT.toLocaleString()}, ₩ ${totalFixedKRW.toLocaleString()}`);
+    console.log(`🎯 최종 총지출: ฿ ${totalWithFixedBAHT.toLocaleString()}, ₩ ${totalWithFixedKRW.toLocaleString()}`);
 }
 
 // localStorage에 저장
